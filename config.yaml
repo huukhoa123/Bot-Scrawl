@@ -1,4 +1,7 @@
 searches:
+  - keyword: "https://itviec.com/viec-lam-it/ho-chi-minh-hcm"
+    location: ""
+    max_pages: 3
   - keyword: "python"
     location: "Hồ Chí Minh"
     max_pages: 3

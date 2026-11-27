@@ -49,7 +49,11 @@ def extract_itviec_job_id(url: str) -> str:
 
 
 def build_itviec_search_url(keyword: str, location: str = "") -> str:
-    kw_slug = re.sub(r"[^a-z0-9]+", "-", strip_accents(keyword)).strip("-")
+    raw_kw = (keyword or "").strip()
+    if raw_kw.startswith(("http://", "https://")):
+        return raw_kw
+
+    kw_slug = re.sub(r"[^a-z0-9]+", "-", strip_accents(raw_kw)).strip("-")
     kw_part = quote(kw_slug) if kw_slug else ""
     loc_key = strip_accents(location)
     loc_slug = LOCATION_SLUGS.get(loc_key, "")
