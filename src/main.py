@@ -4,6 +4,7 @@ import argparse
 import logging
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from src.bot_sync import register_bot_commands, sync_telegram_updates
@@ -188,6 +189,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Long-poll Telegram for instant /search, /list, /remove, /run, and inline buttons",
     )
+    parser.add_argument(
+        "--interval-hours",
+        type=float,
+        default=0.0,
+        help="In --listen mode, also auto-crawl every N hours (0 = manual /run or /search only)",
+    )
     return parser.parse_args(argv)
 
 
@@ -198,11 +205,18 @@ def run_listen_loop(
     mode: str,
     dry_run: bool,
     cleanup_days: int = 90,
+    interval_hours: float = 0.0,
 ) -> None:
-    logger.info("Listening for Telegram commands (/search, /list, /remove, /run, /pause, /resume)...")
+    logger.info(
+        "Listening 24/7 for Telegram commands (auto-crawl interval=%.1fh)...",
+        interval_hours,
+    )
     register_bot_commands(cfg.telegram_bot_token)
     with JobDB(cfg.db_path) as db:
         db.seed_searches_if_empty([(q.keyword, q.location) for q in cfg.searches])
+
+    interval_sec = max(0.0, interval_hours * 3600.0)
+    last_crawl_ts = 0.0
 
     try:
         while True:
@@ -216,7 +230,10 @@ def run_listen_loop(
                 )
             if synced:
                 logger.info("Handled %d Telegram update(s).", synced)
-            if should_crawl:
+
+            now = time.monotonic()
+            due_by_schedule = interval_sec > 0 and (last_crawl_ts == 0.0 or (now - last_crawl_ts) >= interval_sec)
+            if should_crawl or due_by_schedule:
                 run_pipeline(
                     cfg=cfg,
                     config_path=config_path,
@@ -225,6 +242,7 @@ def run_listen_loop(
                     dry_run=dry_run,
                     cleanup_days=cleanup_days,
                 )
+                last_crawl_ts = time.monotonic()
     except KeyboardInterrupt:
         logger.info("Stopped listening.")
 
@@ -242,6 +260,7 @@ def main(argv: list[str] | None = None) -> int:
             mode=mode,
             dry_run=args.dry_run,
             cleanup_days=args.cleanup_days,
+            interval_hours=args.interval_hours,
         )
         return 0
 
