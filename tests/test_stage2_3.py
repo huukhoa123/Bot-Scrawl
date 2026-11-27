@@ -99,6 +99,9 @@ def test_bot_sync_commands_and_callbacks(tmp_path: Path) -> None:
         reply_add = process_command_text("/search python | Hồ Chí Minh", db)
         assert reply_add and "python" in reply_add
 
+        reply_multi = process_command_text("/search thực tập sinh it", db)
+        assert reply_multi and "thực tập sinh it" in reply_multi and "Mọi nơi" in reply_multi
+
         reply_list = process_command_text("/list", db)
         assert reply_list and "python" in reply_list
 

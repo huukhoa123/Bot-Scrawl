@@ -57,9 +57,8 @@ def process_command_text(text: str, db: JobDB) -> str | None:
         if "|" in arg:
             kw, loc = [p.strip() for p in arg.split("|", 1)]
         else:
-            tokens = arg.split(maxsplit=1)
-            kw = tokens[0].strip()
-            loc = tokens[1].strip() if len(tokens) > 1 else ""
+            kw = arg.strip()
+            loc = ""
         sid = db.add_search(kw, loc)
         return f"✅ Đã thêm tìm kiếm #{sid}: <b>{kw}</b> ({loc or 'Mọi nơi'})"
 
