@@ -14,5 +14,6 @@ __pycache__/
 # Logs & temp
 *.log
 logs/
+bot-deploy.zip
 
 # NOTE: Do NOT ignore data/jobs.db — it is committed to the private repo for GitHub Actions persistence.

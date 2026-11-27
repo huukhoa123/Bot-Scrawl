@@ -125,3 +125,21 @@ def test_bot_sync_commands_and_callbacks(tmp_path: Path) -> None:
         assert ack and "Ứng tuyển" in ack
         row = db.conn.execute("SELECT status FROM jobs WHERE job_id = 'python-dev-9999'").fetchone()
         assert row["status"] == "applied"
+
+
+def test_topdev_api_offline_fixture() -> None:
+    import json
+
+    from src.crawler.spiders.topdev import build_topdev_api_url, parse_topdev_api_payload
+
+    url = build_topdev_api_url("python", "Hồ Chí Minh", page=2)
+    assert "q=python" in url and "region_ids=79" in url and "page=2" in url
+
+    payload = json.loads((FIXTURES_DIR / "topdev_api.json").read_text(encoding="utf-8"))
+    items = parse_topdev_api_payload(payload)
+    assert len(items) == 10
+    first = items[0]
+    assert first["source"] == "topdev"
+    assert first["job_id"] == "2148858"
+    assert first["company"] == "MBBANK"
+    assert "Python" in first["skills"]
