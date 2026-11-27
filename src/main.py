@@ -32,7 +32,7 @@ def configure_logging() -> None:
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_SPIDERS = ("topdev", "itviec")
+DEFAULT_SPIDERS = ("topdev", "vietnamworks", "itviec")
 
 
 def run_spider_subprocess(spider_name: str, config_path: Path) -> bool:

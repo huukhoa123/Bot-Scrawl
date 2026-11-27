@@ -50,7 +50,7 @@ jobs:
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
         run: |
           MODE="${{ github.event.inputs.mode || 'instant' }}"
-          python -m src.main --mode "$MODE" --spiders topdev itviec
+          python -m src.main --mode "$MODE" --spiders topdev vietnamworks itviec
 
       - name: Commit updated SQLite DB
         run: |

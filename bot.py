@@ -18,7 +18,7 @@ from src.main import main  # noqa: E402
 
 if __name__ == "__main__":
     interval = os.getenv("CRAWL_INTERVAL_HOURS", "2")
-    spiders = os.getenv("BOT_SPIDERS", "topdev itviec").split()
+    spiders = os.getenv("BOT_SPIDERS", "topdev vietnamworks itviec").split()
     mode = os.getenv("BOT_MODE", "instant")
     raise SystemExit(
         main(

@@ -143,3 +143,23 @@ def test_topdev_api_offline_fixture() -> None:
     assert first["job_id"] == "2148858"
     assert first["company"] == "MBBANK"
     assert "Python" in first["skills"]
+
+
+def test_vietnamworks_api_offline_fixture() -> None:
+    import json
+
+    from src.crawler.spiders.vietnamworks import build_vnw_payload, parse_vnw_api_payload
+
+    body = build_vnw_payload("python", "Hồ Chí Minh", page=1)
+    assert body["query"] == "python"
+    assert body["page"] == 1
+    assert body["filter"] == [{"field": "workingLocations.cityId", "value": "29"}]
+
+    payload = json.loads((FIXTURES_DIR / "vnw_api.json").read_text(encoding="utf-8"))
+    items = parse_vnw_api_payload(payload)
+    assert len(items) == 5
+    first = items[0]
+    assert first["source"] == "vietnamworks"
+    assert first["job_id"] == "2127339"
+    assert first["company"] == "Vinfast Global"
+    assert first["deadline"] == "2026-12-03"
