@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import logging
 import time
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import httpx
@@ -13,6 +14,14 @@ logger = logging.getLogger(__name__)
 
 TELEGRAM_MAX_CHARS = 4096
 TELEGRAM_SEND_DELAY_SEC = 1.0
+VN_TZ = timezone(timedelta(hours=7))
+
+
+def is_quiet_hours_vn(now_utc: datetime | None = None) -> bool:
+    """Return True during 23:00-06:59 Vietnam time (UTC+7) to send silently."""
+    now = now_utc or datetime.now(timezone.utc)
+    vn_hour = now.astimezone(VN_TZ).hour
+    return vn_hour >= 23 or vn_hour < 7
 
 
 def build_job_inline_keyboard(job: Job) -> dict[str, Any]:
@@ -106,6 +115,7 @@ def send_telegram_html(
         "text": text,
         "parse_mode": "HTML",
         "disable_web_page_preview": True,
+        "disable_notification": is_quiet_hours_vn(),
     }
     if reply_markup is not None:
         payload["reply_markup"] = reply_markup
